@@ -24,6 +24,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+/**
+ * 
+ * @author Tanvir
+ *
+ */
 @Configuration
 @ComponentScan
 @EnableAutoConfiguration
@@ -42,13 +47,13 @@ public class DemoAsyncTasksApplication implements CommandLineRunner {
 	@Value("${max.pool.size:5}")
 	private int maxPoolSize;
 	
-	@Bean(name="myExecutor")
+	@Bean(name="AnExecutor")
 	public TaskExecutor myExecutor() {
 	    ThreadPoolTaskExecutor myExecutor = new ThreadPoolTaskExecutor();
 	    myExecutor.setCorePoolSize(corePoolSize);
 	    myExecutor.setMaxPoolSize(maxPoolSize);
 	    myExecutor.setQueueCapacity(25);
-	    myExecutor.setThreadNamePrefix("myExecutor-");
+	    myExecutor.setThreadNamePrefix("AnExecutor-");
 	    myExecutor.afterPropertiesSet();
 	    myExecutor.setWaitForTasksToCompleteOnShutdown(true);
 	    return myExecutor;
@@ -93,7 +98,7 @@ public class DemoAsyncTasksApplication implements CommandLineRunner {
         	logger.info("Scheduled message... "  + counter.incrementAndGet());
         }
         
-        @Async("myExecutor")
+        @Async("AnExecutor")
         public void asyncMessage(String msg) throws InterruptedException {
         	int wait = 500 + new Random().nextInt(500);
         	Thread.sleep(wait);
@@ -103,10 +108,13 @@ public class DemoAsyncTasksApplication implements CommandLineRunner {
         
         private String[] words = {"the", "quick", "brown", "fox", "jumps", "over", "the", "lazy", "dog"};
         @Async
-        public void asyncTask(AsyncResult ar, int id) throws InterruptedException {
+        public void asyncTask(AsyncResult ar, int id) throws Exception {
         	int wait = 500 + new Random().nextInt(1000);
         	logger.info(String.format("%d) Going to process for %d ms", id, wait));
         	Thread.sleep(wait);
+//        	if (wait % 2 != 0) {
+//        		throw new Exception(String.format("asyncTask %d Not happy!", id));
+//        	}
         	synchronized (ar) {
             	ar.getWords().add(words[new Random().nextInt(words.length)]);
 			}
@@ -134,4 +142,8 @@ public class DemoAsyncTasksApplication implements CommandLineRunner {
 		}
 
     }
+    
 }
+
+
+
