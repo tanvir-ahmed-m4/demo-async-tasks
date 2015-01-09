@@ -23,6 +23,9 @@ public class MyAsyncConfigurer implements AsyncConfigurer {
 	
 	private static final Logger logger = Logger.getLogger(MyAsyncConfigurer.class);
 	
+	@Value("${use.default.executor:true}")
+	private boolean useDefaultExecutor;
+	
 	@Value("${core.pool.size:5}")
 	private int corePoolSize;
 	@Value("${max.pool.size:10}")
@@ -36,13 +39,20 @@ public class MyAsyncConfigurer implements AsyncConfigurer {
 	
 	@Override
     public Executor getAsyncExecutor() {
+		if (useDefaultExecutor) {
+			return null;
+		}
+		
+		// otherwise, create own executor
 	    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 	    executor.setCorePoolSize(corePoolSize);
 	    executor.setMaxPoolSize(maxPoolSize);
 	    executor.setQueueCapacity(queueCapacity);
 	    executor.setThreadNamePrefix(threadNamePrefix);
 	    executor.setWaitForTasksToCompleteOnShutdown(waitOnComplete);
+	    executor.setDaemon(true);
 	    executor.afterPropertiesSet();
+	    executor.initialize();
 	    return executor;
 	}
 	

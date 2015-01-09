@@ -112,9 +112,10 @@ public class DemoAsyncTasksApplication implements CommandLineRunner {
         	int wait = 500 + new Random().nextInt(1000);
         	logger.info(String.format("%d) Going to process for %d ms", id, wait));
         	Thread.sleep(wait);
-//        	if (wait % 2 != 0) {
-//        		throw new Exception(String.format("asyncTask %d Not happy!", id));
-//        	}
+        	if (wait % 2 == 0) {
+        		// we don't like even numbers
+        		throw new Exception(String.format("asyncTask %d Not happy!", id));
+        	}
         	synchronized (ar) {
             	ar.getWords().add(words[new Random().nextInt(words.length)]);
 			}
